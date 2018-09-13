@@ -89,7 +89,7 @@ export const getFieldValue = (value, typeName, classes={}) => {
     case "number":
     case "SimpleSchema.Integer":
       return <code>{value.toString()}</code>;
-    
+
     case 'Array':
       return <ol>{value.map(
         (item, index) => <li key={index}>{getFieldValue(item, typeof item, classes)}</li>)}</ol>;
@@ -153,9 +153,9 @@ const CardEdit = (props, context) => {
     <TableRow className={classes.tableRow}>
       <TableCell className={classes.tableCell} colSpan="2">
         <Components.ModalTrigger label={editTitle}
-                                 component={<IconButton aria-label={editTitle}>
-                                   <EditIcon/>
-                                 </IconButton>}
+          component={<IconButton aria-label={editTitle}>
+            <EditIcon />
+          </IconButton>}
         >
           <CardEditForm {...props} />
         </Components.ModalTrigger>

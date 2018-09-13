@@ -18,68 +18,76 @@ const getLabel = (field, fieldName, collection, intl) => {
   const schema = collection.simpleSchema()._schema;
   const fieldSchema = schema[fieldName];
   if (fieldSchema) {
-    return intl.formatMessage(
-      { id: `${collection._name}.${fieldName}`, defaultMessage: fieldSchema.label });
+    return intl.formatMessage({
+      id: `${collection._name}.${fieldName}`,
+      defaultMessage: fieldSchema.label
+    });
   } else {
     return fieldName;
   }
 };
-
 
 const getTypeName = (field, fieldName, collection) => {
   const schema = collection.simpleSchema()._schema;
   const fieldSchema = schema[fieldName];
   if (fieldSchema) {
     const type = fieldSchema.type.singleType;
-    const typeName = typeof type === 'function' ? type.name : type;
+    const typeName = typeof type === "function" ? type.name : type;
     return typeName;
   } else {
     return typeof field;
   }
 };
 
-
 const parseImageUrl = value => {
-  const isImage = ['.png', '.jpg', '.gif'].indexOf(value.substr(-4)) !== -1 ||
-    ['.webp', '.jpeg'].indexOf(value.substr(-5)) !== -1;
-  return isImage ?
-    <img style={{ width: '100%', maxWidth: 200 }} src={value} alt={value}/> :
-    <LimitedString string={value}/>;
+  const isImage =
+    [".png", ".jpg", ".gif"].indexOf(value.substr(-4)) !== -1 ||
+    [".webp", ".jpeg"].indexOf(value.substr(-5)) !== -1;
+  return isImage ? (
+    <img style={{ width: "100%", maxWidth: 200 }} src={value} alt={value} />
+  ) : (
+    <LimitedString string={value} />
+  );
 };
 
-
-const LimitedString = ({ string }) =>
+const LimitedString = ({ string }) => (
   <div>
-    {string.indexOf(' ') === -1 && string.length > 30 ?
-      <span title={string}>{string.substr(0, 30)}…</span> :
+    {string.indexOf(" ") === -1 && string.length > 30 ? (
+      <span title={string}>{string.substr(0, 30)}…</span>
+    ) : (
       <span>{string}</span>
-    }
-  </div>;
-
+    )}
+  </div>
+);
 
 export const getFieldValue = (value, typeName, classes={}) => {
   
   if (typeof value === 'undefined' || value === null) {
     return '';
   }
-  
+
   if (Array.isArray(value)) {
-    typeName = 'Array';
+    typeName = "Array";
   }
-  
-  if (typeof typeName === 'undefined') {
+
+  if (typeof typeName === "undefined") {
     typeName = typeof value;
   }
-  
+
   switch (typeName) {
-    
-    case 'Boolean':
-    case 'boolean':
-      return <Checkbox checked={value} disabled style={{ width: '32px', height: '32px' }}/>;
-    
-    case 'Number':
-    case 'number':
-    case 'SimpleSchema.Integer':
+    case "Boolean":
+    case "boolean":
+      return (
+        <Checkbox
+          checked={value}
+          disabled
+          style={{ width: "32px", height: "32px" }}
+        />
+      );
+
+    case "Number":
+    case "number":
+    case "SimpleSchema.Integer":
       return <code>{value.toString()}</code>;
     
     case 'Array':
@@ -100,10 +108,27 @@ export const getFieldValue = (value, typeName, classes={}) => {
           </TableBody>
         </Table>
       );
-    
-    case 'Date':
-      return moment(new Date(value)).format('dddd, MMMM Do YYYY, h:mm:ss');
-    
+
+    case "Object":
+    case "object":
+      return (
+        <Table className="table">
+          <TableBody>
+            {_.map(value, (value, key) => (
+              <TableRow key={key}>
+                <TableCell>
+                  <strong>{key}</strong>
+                </TableCell>
+                <TableCell>{getFieldValue(value, typeof value)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      );
+
+    case "Date":
+      return moment(new Date(value)).format("dddd, MMMM Do YYYY, h:mm:ss");
+
     default:
       return parseImageUrl(value);
   }
@@ -139,11 +164,9 @@ const CardEdit = (props, context) => {
   );
 };
 
-
 CardEdit.contextTypes = { intl: intlShape };
 
-
-const CardEditForm = ({ collection, document, closeModal }) =>
+const CardEditForm = ({ collection, document, closeModal }) => (
   <Components.SmartForm
     collection={collection}
     documentId={document._id}
@@ -151,8 +174,19 @@ const CardEditForm = ({ collection, document, closeModal }) =>
     successCallback={document => {
       closeModal();
     }}
-  />;
+  />
+);
 
+const Card = (
+  { className, collection, document, currentUser, fields },
+  { intl }
+) => {
+  const fieldNames = fields
+    ? fields
+    : _.without(_.keys(document), "__typename");
+  const canEdit =
+    currentUser &&
+    collection.options.mutations.edit.check(currentUser, document);
 
 const styles = theme => ({
   root: {},
@@ -190,9 +224,7 @@ const Card = ({ className, collection, document, currentUser, fields, classes },
   );
 };
 
-
-Card.displayName = 'Card';
-
+Card.displayName = "Card";
 
 Card.propTypes = {
   className: PropTypes.string,
@@ -202,7 +234,6 @@ Card.propTypes = {
   fields: PropTypes.array,
   classes: PropTypes.object.isRequired,
 };
-
 
 Card.contextTypes = {
   intl: intlShape

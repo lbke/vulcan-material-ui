@@ -1,18 +1,17 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { intlShape } from 'meteor/vulcan:i18n';
-import { replaceComponent, Components } from 'meteor/vulcan:core';
-import moment from 'moment';
-import withStyles from '@material-ui/core/styles/withStyles';
-import IconButton from '@material-ui/core/IconButton';
-import Checkbox from '@material-ui/core/Checkbox';
-import EditIcon from 'mdi-material-ui/Pencil';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
-import classNames from 'classnames';
-
+import React from "react";
+import PropTypes from "prop-types";
+import { intlShape } from "meteor/vulcan:i18n";
+import { replaceComponent, Components } from "meteor/vulcan:core";
+import moment from "moment";
+import withStyles from "@material-ui/core/styles/withStyles";
+import IconButton from "@material-ui/core/IconButton";
+import Checkbox from "@material-ui/core/Checkbox";
+import EditIcon from "mdi-material-ui/Pencil";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableRow from "@material-ui/core/TableRow";
+import TableCell from "@material-ui/core/TableCell";
+import classNames from "classnames";
 
 const getLabel = (field, fieldName, collection, intl) => {
   const schema = collection.simpleSchema()._schema;
@@ -60,10 +59,9 @@ const LimitedString = ({ string }) => (
   </div>
 );
 
-export const getFieldValue = (value, typeName, classes={}) => {
-  
-  if (typeof value === 'undefined' || value === null) {
-    return '';
+export const getFieldValue = (value, typeName, classes = {}) => {
+  if (typeof value === "undefined" || value === null) {
+    return "";
   }
 
   if (Array.isArray(value)) {
@@ -90,21 +88,41 @@ export const getFieldValue = (value, typeName, classes={}) => {
     case "SimpleSchema.Integer":
       return <code>{value.toString()}</code>;
 
-    case 'Array':
-      return <ol>{value.map(
-        (item, index) => <li key={index}>{getFieldValue(item, typeof item, classes)}</li>)}</ol>;
-    
-    case 'Object':
-    case 'object':
+    case "Array":
+      return (
+        <ol>
+          {value.map((item, index) => (
+            <li key={index}>{getFieldValue(item, typeof item, classes)}</li>
+          ))}
+        </ol>
+      );
+
+    case "Object":
+    case "object":
       return (
         <Table className="table">
           <TableBody>
-            {_.map(value, (value, key) =>
-              <TableRow className={classNames(classes.table, 'table')} key={key}>
-                <TableCell className={classNames(classes.tableHeadCell, 'datacard-label')} variant="head">{key}</TableCell>
-                <TableCell className={classNames(classes.tableCell, 'datacard-value')} >{getFieldValue(value, typeof value, classes)}</TableCell>
+            {_.map(value, (value, key) => (
+              <TableRow
+                className={classNames(classes.table, "table")}
+                key={key}
+              >
+                <TableCell
+                  className={classNames(
+                    classes.tableHeadCell,
+                    "datacard-label"
+                  )}
+                  variant="head"
+                >
+                  {key}
+                </TableCell>
+                <TableCell
+                  className={classNames(classes.tableCell, "datacard-value")}
+                >
+                  {getFieldValue(value, typeof value, classes)}
+                </TableCell>
               </TableRow>
-            )}
+            ))}
           </TableBody>
         </Table>
       );
@@ -134,28 +152,33 @@ export const getFieldValue = (value, typeName, classes={}) => {
   }
 };
 
-
-const CardItem = ({ label, value, typeName, classes }) =>
+const CardItem = ({ label, value, typeName, classes }) => (
   <TableRow className={classes.tableRow}>
-    <TableCell className={classNames(classes.tableHeadCell, 'datacard-label')} variant="head">
+    <TableCell
+      className={classNames(classes.tableHeadCell, "datacard-label")}
+      variant="head"
+    >
       {label}
     </TableCell>
-    <TableCell className={classNames(classes.tableCell, 'datacard-value')}>
+    <TableCell className={classNames(classes.tableCell, "datacard-value")}>
       {getFieldValue(value, typeName, classes)}
     </TableCell>
-  </TableRow>;
-
+  </TableRow>
+);
 
 const CardEdit = (props, context) => {
   const classes = props.classes;
-  const editTitle = context.intl.formatMessage({ id: 'cards.edit' });
+  const editTitle = context.intl.formatMessage({ id: "cards.edit" });
   return (
     <TableRow className={classes.tableRow}>
       <TableCell className={classes.tableCell} colSpan="2">
-        <Components.ModalTrigger label={editTitle}
-          component={<IconButton aria-label={editTitle}>
-            <EditIcon />
-          </IconButton>}
+        <Components.ModalTrigger
+          label={editTitle}
+          component={
+            <IconButton aria-label={editTitle}>
+              <EditIcon />
+            </IconButton>
+          }
         >
           <CardEditForm {...props} />
         </Components.ModalTrigger>
@@ -177,47 +200,58 @@ const CardEditForm = ({ collection, document, closeModal }) => (
   />
 );
 
+const styles = theme => ({
+  root: {},
+  table: {
+    maxWidth: "100%"
+  },
+  tableBody: {},
+  tableRow: {},
+  tableCell: {},
+  tableHeadCell: {}
+});
+
 const Card = (
-  { className, collection, document, currentUser, fields },
+  { className, collection, document, currentUser, fields, classes },
   { intl }
 ) => {
   const fieldNames = fields
     ? fields
     : _.without(_.keys(document), "__typename");
-  const canEdit =
+  const canUpdate =
     currentUser &&
-    collection.options.mutations.edit.check(currentUser, document);
+    collection.options.mutations.update.check(currentUser, document);
 
-const styles = theme => ({
-  root: {},
-  table: {
-    maxWidth: '100%'
-  },
-  tableBody: {},
-  tableRow: {},
-  tableCell: {},
-  tableHeadCell: {},
-});
-
-
-const Card = ({ className, collection, document, currentUser, fields, classes }, { intl }) => {
-  
-  const fieldNames = fields ? fields : _.without(_.keys(document), '__typename');
-  const canUpdate = currentUser && collection.options.mutations.update.check(currentUser, document);
-  
   return (
-    <div className={classNames(classes.root, 'datacard', `datacard-${collection._name}`, className)}>
-      <Table className={classNames(classes.table, 'table')} style={{ maxWidth: '100%' }}>
+    <div
+      className={classNames(
+        classes.root,
+        "datacard",
+        `datacard-${collection._name}`,
+        className
+      )}
+    >
+      <Table
+        className={classNames(classes.table, "table")}
+        style={{ maxWidth: "100%" }}
+      >
         <TableBody>
-          {canUpdate ? <CardEdit collection={collection} document={document} classes={classes}/> : null}
-          {fieldNames.map((fieldName, index) =>
-            <CardItem key={index}
-                      value={document[fieldName]}
-                      typeName={getTypeName(document[fieldName], fieldName, collection)}
-                      label={getLabel(document[fieldName], fieldName, collection, intl)}
-                      classes={classes}
+          {canUpdate ? (
+            <CardEdit
+              collection={collection}
+              document={document}
+              classes={classes}
             />
-          )}
+          ) : null}
+          {fieldNames.map((fieldName, index) => (
+            <CardItem
+              key={index}
+              value={document[fieldName]}
+              typeName={getTypeName(document[fieldName], fieldName, collection)}
+              label={getLabel(document[fieldName], fieldName, collection, intl)}
+              classes={classes}
+            />
+          ))}
         </TableBody>
       </Table>
     </div>
@@ -232,12 +266,11 @@ Card.propTypes = {
   document: PropTypes.object,
   currentUser: PropTypes.object,
   fields: PropTypes.array,
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object.isRequired
 };
 
 Card.contextTypes = {
   intl: intlShape
 };
 
-
-replaceComponent('Card', Card, [withStyles, styles]);
+replaceComponent("Card", Card, [withStyles, styles]);

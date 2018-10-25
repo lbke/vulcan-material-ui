@@ -1,40 +1,32 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { replaceComponent } from 'meteor/vulcan:core';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
+import React from "react";
+import PropTypes from "prop-types";
+import { replaceComponent, Components } from "meteor/vulcan:core";
+import { FormattedMessage } from "meteor/vulcan:i18n";
 
-import Snackbar from '@material-ui/core/Snackbar';
-import withStyles from '@material-ui/core/styles/withStyles';
-import classNames from 'classnames';
-
+import Snackbar from "@material-ui/core/Snackbar";
+import withStyles from "@material-ui/core/styles/withStyles";
+import classNames from "classnames";
 
 const styles = theme => ({
   root: {
-    position: 'relative',
-    boxShadow: 'none',
+    position: "relative",
+    boxShadow: "none",
     marginBottom: theme.spacing.unit * 2
   },
   list: {
     marginBottom: 0
   },
-  error: { '& > div': { backgroundColor: theme.palette.error[500] } },
-  danger: { '& > div': { backgroundColor: theme.palette.error[500] } },
-  warning: { '& > div': { backgroundColor: theme.palette.error[500] } }
+  error: { "& > div": { backgroundColor: theme.palette.error[500] } },
+  danger: { "& > div": { backgroundColor: theme.palette.error[500] } },
+  warning: { "& > div": { backgroundColor: theme.palette.error[500] } }
 });
-
 
 const FormErrors = ({ errors, classes }) => {
   const messageNode = (
     <ul className={classes.list}>
       {errors.map((error, index) => (
         <li key={index}>
-          {error.message || (
-            <FormattedMessage
-              id={error.id}
-              values={{ ...error.properties }}
-              defaultMessage={JSON.stringify(error)}
-            />
-          )}
+          <Components.FormError error={error} />
         </li>
       ))}
     </ul>
@@ -45,7 +37,7 @@ const FormErrors = ({ errors, classes }) => {
       {!!errors.length && (
         <Snackbar
           open={true}
-          className={classNames('flash-message', classes.root , classes.danger)}
+          className={classNames("flash-message", classes.root, classes.danger)}
           message={messageNode}
         />
       )}
@@ -53,5 +45,4 @@ const FormErrors = ({ errors, classes }) => {
   );
 };
 
-
-replaceComponent('FormErrors', FormErrors, [withStyles, styles]);
+replaceComponent("FormErrors", FormErrors, [withStyles, styles]);

@@ -1,59 +1,58 @@
-import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
-import { intlShape } from 'meteor/vulcan:i18n';
-import { Components, registerComponent, instantiateComponent } from 'meteor/vulcan:core';
-import withStyles from '@material-ui/core/styles/withStyles';
-import _omit from 'lodash/omit';
-import classNames from 'classnames';
-
+import React, { PureComponent } from "react";
+import PropTypes from "prop-types";
+import { intlShape } from "meteor/vulcan:i18n";
+import {
+  Components,
+  registerComponent,
+  instantiateComponent
+} from "meteor/vulcan:core";
+import withStyles from "@material-ui/core/styles/withStyles";
+import _omit from "lodash/omit";
+import classNames from "classnames";
 
 const styles = theme => ({
-  
   formInput: {
-    position: 'relative',
-    marginBottom: theme.spacing.unit * 2,
+    position: "relative",
+    marginBottom: theme.spacing.unit * 2
   },
-  
+
   halfWidthLeft: {
-    display: 'inline-block',
-    width: '48%',
-    verticalAlign: 'top',
-    marginRight: '4%',
+    display: "inline-block",
+    width: "48%",
+    verticalAlign: "top",
+    marginRight: "4%"
   },
-  
+
   halfWidthRight: {
-    display: 'inline-block',
-    width: '48%',
-    verticalAlign: 'top',
+    display: "inline-block",
+    width: "48%",
+    verticalAlign: "top"
   },
-  
+
   thirdWidthLeft: {
-    display: 'inline-block',
-    width: '31%',
-    verticalAlign: 'top',
-    marginRight: '3.5%',
+    display: "inline-block",
+    width: "31%",
+    verticalAlign: "top",
+    marginRight: "3.5%"
   },
-  
+
   thirdWidthRight: {
-    display: 'inline-block',
-    width: '31%',
-    verticalAlign: 'top',
+    display: "inline-block",
+    width: "31%",
+    verticalAlign: "top"
   },
-  
+
   hidden: {
-    display: 'none',
-  },
-  
+    display: "none"
+  }
 });
 
-
 class FormComponentInner extends PureComponent {
-  
   getProperties = () => {
-    return _omit(this.props, 'classes');
+    return _omit(this.props, "classes");
   };
-  
-  render () {
+
+  render() {
     const {
       classes,
       inputClassName,
@@ -64,46 +63,40 @@ class FormComponentInner extends PureComponent {
       afterComponent,
       formInput,
       intlInput,
-      nestedInput,
-      formComponents,
+      nestedInput
     } = this.props;
-  
-    const FormComponents = formComponents;
-    
+
     const inputClass = classNames(
       classes.formInput,
       hidden && classes.hidden,
       inputClassName && classes[inputClassName],
       `input-${name}`,
-      `form-component-${input || 'default'}`
+      `form-component-${input || "default"}`
     );
-    
+
     const properties = this.getProperties();
-  
+
     const FormInput = formInput;
-  
+
     if (intlInput) {
       return <Components.FormIntl {...properties} />;
-    } else if (nestedInput){
-      return <Components.FormNested {...properties} />;
+    } else if (!FormInput && nestedInput) {
+      return <Components.FormNestedArray {...properties} />;
     } else {
       return (
         <div className={inputClass}>
           {instantiateComponent(beforeComponent, properties)}
-          <FormInput {...properties}/>
+          <FormInput {...properties} />
           {instantiateComponent(afterComponent, properties)}
         </div>
       );
     }
-    
   }
 }
 
-
 FormComponentInner.contextTypes = {
-  intl: intlShape,
+  intl: intlShape
 };
-
 
 FormComponentInner.propTypes = {
   classes: PropTypes.object.isRequired,
@@ -119,11 +112,12 @@ FormComponentInner.propTypes = {
   charsRemaining: PropTypes.number,
   charsCount: PropTypes.number,
   max: PropTypes.number,
-  formInput: PropTypes.func.isRequired,
+  formInput: PropTypes.func.isRequired
 };
 
+FormComponentInner.displayName = "FormComponentInner";
 
-FormComponentInner.displayName = 'FormComponentInner';
-
-
-registerComponent('FormComponentInner', FormComponentInner, [withStyles, styles]);
+registerComponent("FormComponentInner", FormComponentInner, [
+  withStyles,
+  styles
+]);
